@@ -63,7 +63,7 @@ class Instagram
     /**
      * @param string $tag
      *
-     * @return array
+     * @return Tag[]
      * @throws InstagramException
      * @throws InstagramNotFoundException
      */
@@ -75,7 +75,7 @@ class Instagram
     /**
      * @param string $location
      *
-     * @return array
+     * @return Location[]
      * @throws InstagramException
      * @throws InstagramNotFoundException
      */
