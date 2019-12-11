@@ -69,7 +69,7 @@ class Instagram
      */
     public function searchTagsByTagName($tag)
     {
-        return $this->searchEntityByName($tag, 'hashtags');
+        return $this->searchEntityByName($tag, 'hashtag');
     }
 
     /**
@@ -81,18 +81,18 @@ class Instagram
      */
     public function searchLocationByName($location)
     {
-        return $this->searchEntityByName($location, 'places');
+        return $this->searchEntityByName($location, 'place');
     }
 
     /**
      * @param string $name
      *
-     * @param string $entity
+     * @param string $entityName
      * @return array
      * @throws InstagramException
      * @throws InstagramNotFoundException
      */
-    public function searchEntityByName($name, $entity = 'hashtags')
+    public function searchEntityByName($name, $entityName = 'hashtag')
     {
         $response = Request::get(Endpoints::getGeneralSearchJsonLink($name), $this->generateHeaders($this->userSession));
 
@@ -109,20 +109,22 @@ class Instagram
             throw new InstagramException('Response code is not equal 200. Something went wrong. Please report issue.');
         }
 
-        if (!isset($jsonResponse[$entity]) || empty($jsonResponse[$entity])) {
+        $listEntitiesName = $entityName . 's';
+
+        if (!isset($jsonResponse[$listEntitiesName]) || empty($jsonResponse[$listEntitiesName])) {
             return [];
         }
         $result = [];
-        foreach ($jsonResponse[$entity] as $jsonHashtag) {
-            switch ($entity) {
-                case 'hashtags':
-                    $result[] = Tag::create($jsonHashtag[$entity]);
+        foreach ($jsonResponse[$listEntitiesName] as $item) {
+            switch ($entityName) {
+                case 'hashtag':
+                    $result[] = Tag::create($item[$entityName]);
                     break;
-                case 'places':
-                    $result[] = Location::create($jsonHashtag[$entity]);
+                case 'place':
+                    $result[] = Location::create($item[$entityName]);
                     break;
-                case 'users':
-                    $result[] = Account::create($jsonHashtag[$entity]);
+                case 'user':
+                    $result[] = Account::create($item[$entityName]);
                     break;
             }
         }
