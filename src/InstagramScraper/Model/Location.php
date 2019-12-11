@@ -106,4 +106,12 @@ class Location extends AbstractModel
     {
         return $this->modified;
     }
+
+    /**
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
 }
