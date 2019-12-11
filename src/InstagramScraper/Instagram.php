@@ -69,8 +69,33 @@ class Instagram
      */
     public static function searchTagsByTagName($tag)
     {
+        return self::searchEntityByName($tag, 'hashtags');
+    }
+
+    /**
+     * @param string $location
+     *
+     * @return array
+     * @throws InstagramException
+     * @throws InstagramNotFoundException
+     */
+    public static function searchLocationByName($location)
+    {
+        return self::searchEntityByName($location, 'places');
+    }
+
+    /**
+     * @param string $name
+     *
+     * @param string $entity
+     * @return array
+     * @throws InstagramException
+     * @throws InstagramNotFoundException
+     */
+    public static function searchEntityByName($name, $entity = 'hashtags')
+    {
         // TODO: Add tests and auth
-        $response = Request::get(Endpoints::getGeneralSearchJsonLink($tag));
+        $response = Request::get(Endpoints::getGeneralSearchJsonLink($name));
 
         if (static::HTTP_NOT_FOUND === $response->code) {
             throw new InstagramNotFoundException('Account with given username does not exist.');
@@ -85,15 +110,27 @@ class Instagram
             throw new InstagramException('Response code is not equal 200. Something went wrong. Please report issue.');
         }
 
-        if (!isset($jsonResponse['hashtags']) || empty($jsonResponse['hashtags'])) {
+        if (!isset($jsonResponse[$entity]) || empty($jsonResponse[$entity])) {
             return [];
         }
-        $hashtags = [];
-        foreach ($jsonResponse['hashtags'] as $jsonHashtag) {
-            $hashtags[] = Tag::create($jsonHashtag['hashtag']);
+        $result = [];
+        foreach ($jsonResponse[$entity] as $jsonHashtag) {
+            switch ($entity) {
+                case 'hashtags':
+                    $result[] = Tag::create($jsonHashtag[$entity]);
+                    break;
+                case 'places':
+                    $result[] = Location::create($jsonHashtag[$entity]);
+                    break;
+                case 'users':
+                    $result[] = Account::create($jsonHashtag[$entity]);
+                    break;
+            }
         }
-        return $hashtags;
+        return $result;
     }
+
+
 
     /**
      * @param \stdClass|string $rawError
