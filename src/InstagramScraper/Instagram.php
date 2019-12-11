@@ -67,9 +67,9 @@ class Instagram
      * @throws InstagramException
      * @throws InstagramNotFoundException
      */
-    public static function searchTagsByTagName($tag)
+    public function searchTagsByTagName($tag)
     {
-        return self::searchEntityByName($tag, 'hashtags');
+        return $this->searchEntityByName($tag, 'hashtags');
     }
 
     /**
@@ -79,9 +79,9 @@ class Instagram
      * @throws InstagramException
      * @throws InstagramNotFoundException
      */
-    public static function searchLocationByName($location)
+    public function searchLocationByName($location)
     {
-        return self::searchEntityByName($location, 'places');
+        return $this->searchEntityByName($location, 'places');
     }
 
     /**
@@ -92,10 +92,9 @@ class Instagram
      * @throws InstagramException
      * @throws InstagramNotFoundException
      */
-    public static function searchEntityByName($name, $entity = 'hashtags')
+    public function searchEntityByName($name, $entity = 'hashtags')
     {
-        // TODO: Add tests and auth
-        $response = Request::get(Endpoints::getGeneralSearchJsonLink($name));
+        $response = Request::get(Endpoints::getGeneralSearchJsonLink($name), $this->generateHeaders($this->userSession));
 
         if (static::HTTP_NOT_FOUND === $response->code) {
             throw new InstagramNotFoundException('Account with given username does not exist.');
